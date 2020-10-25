@@ -1,10 +1,13 @@
 package Solutions;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.TreeMap;
+
 
 public class SolutionDisjointSet {
 
@@ -58,13 +61,22 @@ public class SolutionDisjointSet {
     }
 
     public void getIdAcPair(String file) throws IOException {
-        long t = Calendar.getInstance().getTimeInMillis();
+        //long t = Calendar.getInstance().getTimeInMillis();
+        /*
+        Files.lines(Paths.get(file)).forEach(line -> {
+            String[] split = line.split(" ");
+            Integer id = Integer.parseInt(split[0]);
+            Pairs.put(id,split[1]);
+        });
+
+         */
+
         BufferedReader br;
         File f = new File(file);
         br = new BufferedReader(new FileReader(f));
         String s;
         String[] tokens;
-        Integer id;
+        int id;
         String cnt;
         while((s = br.readLine()) != null){
             tokens = s.split(" ");
@@ -73,22 +85,24 @@ public class SolutionDisjointSet {
             Pairs.put(id,cnt);
         }
         br.close();
-        long t1 = Calendar.getInstance().getTimeInMillis();
-        System.out.println("Time: "+(t1-t)+"ms");
+
+
+        //long t1 = Calendar.getInstance().getTimeInMillis();
+        //System.out.println("Time: "+(t1-t)+"ms");
     }
 
     public Integer getRoot(Integer x){
         Integer x_root = x;
-        while(this.GraphSet[x_root] != x_root)
+        while(!this.GraphSet[x_root].equals(x_root)) {
             x_root = this.GraphSet[x_root];
+        }
         return x_root;
     }
 
     public void Union_verts(Integer x, Integer y) {
         int x_root = getRoot(x);
         int y_root = getRoot(y);
-        if(x_root != y_root) {
-            /*
+        /*
             if(this.rank[x_root] > this.rank[y_root])
                 this.GraphSet[y_root] = x_root;
             else if(this.rank[x_root] < this.rank[y_root])
@@ -98,25 +112,33 @@ public class SolutionDisjointSet {
                 this.rank[y_root]++;
             }
              */
-
-            // 由于要让最小编号作为根，故先不考虑优化，而且树高不是很高因为每个簇大小最多就11,12的样子
-            // 这样也能保证每一个簇里面的账号都是按id排序的
-            if(x_root < y_root)
-                this.GraphSet[y_root] = x_root;
-            else this.GraphSet[x_root] = y_root;
+        // 由于要让最小编号作为根，故先不考虑优化，而且树高不是很高因为每个簇大小最多就11,12的样子
+        // 这样也能保证每一个簇里面的账号都是按id排序的
+        if(x_root != y_root) if (x_root < y_root) this.GraphSet[y_root] = x_root;
+        else {
+            this.GraphSet[x_root] = y_root;
         }
     }
 
-    public void getRelFromFile(String file){
-        long t = Calendar.getInstance().getTimeInMillis();
+    public void getRelFromFile(String file) {
+        //long t = Calendar.getInstance().getTimeInMillis();
+        /*
+        Files.lines(Paths.get(file)).forEach(line -> {
+            String[] split = line.split(" ");
+            Integer A = Integer.parseInt(split[0]);
+            Integer B = Integer.parseInt(split[2]);
+            //relPairs.add(new relPair(A,B));
+            Union_verts(A, B);
+        });
+         */
+
         BufferedReader br;
-        FileWriter fw = null;
         try {
             File f = new File(file);
             br = new BufferedReader(new FileReader(f));
             String s;
             String[] tokens;
-            Integer i = 0,A,B;
+            int A,B;
             while((s = br.readLine()) != null){
                 tokens = s.split(" ");
                 A = Integer.parseInt(tokens[0]);
@@ -128,8 +150,9 @@ public class SolutionDisjointSet {
         } catch (IOException e){
             e.printStackTrace();
         }
-        long t1 = Calendar.getInstance().getTimeInMillis();
-        System.out.println("Time: "+(t1-t)+"ms");
+
+        //long t1 = Calendar.getInstance().getTimeInMillis();
+        //System.out.println("Time: "+(t1-t)+"ms");
     }
 
     public void generateGraphSet() {
@@ -138,60 +161,55 @@ public class SolutionDisjointSet {
         }
     }
 
-    public Integer getClassNum(){
-        Integer res = 0;
-        for(int i = 0;i < Max;i++){
-            System.out.println(GraphSet[i]);
-            if(this.GraphSet[i] == i){
-                res ++;
-            }
-        }
-        return res;
-    }
-
     public void UnionToRoot(){
         for(Integer v = 0;v < Max;++v){
-            if(GraphSet[v] != v){
+            if(!GraphSet[v].equals(v)){
                 GraphSet[v] = getRoot(v);
             }
         }
     }
 
     public void Classify(){
-        long t = Calendar.getInstance().getTimeInMillis();
+        //long t = Calendar.getInstance().getTimeInMillis();
         UnionToRoot();
         for(int cur = 0;cur < Max;++cur) {
             if (!Classes.containsKey(GraphSet[cur])) {
-                Classes.put(GraphSet[cur], new ArrayList<Integer>());
+                Classes.put(GraphSet[cur], new ArrayList<>());
             }
             Classes.get(GraphSet[cur]).add(cur);
         }
-        long t1 = Calendar.getInstance().getTimeInMillis();
-        System.out.println("Time: "+(t1-t)+"ms");
+        //long t1 = Calendar.getInstance().getTimeInMillis();
+        //System.out.println("Time: "+(t1-t)+"ms");
     }
 
     public void getResults(String file) throws IOException {
-        long t = Calendar.getInstance().getTimeInMillis();
+        //long t = Calendar.getInstance().getTimeInMillis();
+        //FileOutputStream fos = new FileOutputStream(file,true);
+        //FileChannel channel = fos.getChannel();
+        //StringBuffer content = new StringBuffer();
         File f = new File(file);
         FileWriter rs = new FileWriter(f);
         BufferedWriter buff = new BufferedWriter(rs);
+        StringBuffer s = new StringBuffer();
         for (HashMap.Entry<Integer, ArrayList<Integer>> entry : Classes.entrySet()) {
-            String s = entry.getKey() + "";
+            s.append(entry.getKey() + "");
             for(int i = 0;i < entry.getValue().size();i++){
-                s += (i==0 ? " " : ",") + Pairs.get(entry.getValue().get(i));
+                s.append((i==0 ? " " : ",") + Pairs.get(entry.getValue().get(i)));
             }
-            buff.write(s + "\r\n");
+            s.append("\r\n");
+            
+            //buff.write(s + "\r\n");
         }
-        rs.close();
+        buff.write(String.valueOf(s));
         buff.close();
-        long t1 = Calendar.getInstance().getTimeInMillis();
-        System.out.println("Time: "+(t1-t)+"ms");
+        //long t1 = Calendar.getInstance().getTimeInMillis();
+        //System.out.println("Time: "+(t1-t)+"ms");
     }
 
     public static void main(String[] args) throws IOException {
-        String rel = "relations.txt";
-        String act = "accounts.txt";
-        String res = "results.txt";
+        String rel = "DataSet/relations.txt";
+        String act = "DataSet/accounts.txt";
+        String res = "DataSet/results.txt";
         SolutionDisjointSet g = new SolutionDisjointSet();
         g.Execute(rel,act,res);
     }
