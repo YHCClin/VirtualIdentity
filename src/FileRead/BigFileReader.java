@@ -42,7 +42,7 @@ public class BigFileReader {
     }
 
     public void start(){
-        long everySize = this.fileLength/this.threadPoolSize;
+        long everySize = this.fileLength/this.threadPoolSize; // 为每个线程分配文件大小
         try {
             calculateStartEnd(0, everySize);
         } catch (IOException e) {
@@ -62,7 +62,7 @@ public class BigFileReader {
         }
     }
 
-    private void calculateStartEnd(long start,long size) throws IOException{
+    private void calculateStartEnd(long start,long size) throws IOException{ // 找到每一文件段的初始和结束位置索引
         if(start>fileLength-1){
             return;
         }
@@ -77,7 +77,7 @@ public class BigFileReader {
 
         rAccessFile.seek(endPosition);
         byte tmp =(byte) rAccessFile.read();
-        while(tmp!='\n' && tmp!='\r'){
+        while(tmp!='\n' && tmp!='\r'){// 保证切分点不会在行内
             endPosition++;
             if(endPosition>=fileLength-1){
                 endPosition=fileLength-1;
@@ -109,7 +109,7 @@ public class BigFileReader {
         } else {
             line = new String(bytes, charset);
         }
-        if (line != null && !line.equals("")) {
+        if (!line.equals("")) {
             this.handle.handle(line);
             counter.incrementAndGet();
         }
