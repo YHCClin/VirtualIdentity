@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="VisualIdentity:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/VisualIdentity_jar</output-path>
+    <root id="archive" name="VisualIdentity.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="VisualIdentity" />
+    </root>
+  </artifact>
+</component>
