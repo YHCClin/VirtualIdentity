@@ -6,14 +6,19 @@ import java.nio.CharBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Objects;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.zip.GZIPInputStream;
+
 import Solutions.*;
+import com.sun.deploy.net.MessageHeader;
 
 class relPair{
     public String A;
@@ -26,6 +31,37 @@ class relPair{
 public class TestRead {
 
     private ArrayList<relPair> relPairs = new ArrayList<relPair>();
+
+    public void stream() throws FileNotFoundException, IOException {
+        Long startTime = System.currentTimeMillis();
+        File path = new File("DataSet/relations.txt");
+        BufferedReader reader = getReader(path);
+
+        String line;
+        String[] tokens;
+        while ((line = reader.readLine()) != null) {
+            // 空转
+            //System.out.println(line);
+            tokens = line.split(" ");
+            //System.out.println(tokens[0] + " " + tokens[2]);
+            relPairs.add(new relPair(tokens[0],tokens[2]));
+        }
+        Long estimatedTime = System.currentTimeMillis() - startTime;
+        System.out.printf("stream Diff: %d ms\n", estimatedTime);
+
+    }
+
+    public static BufferedReader getReader(File f) throws FileNotFoundException, IOException {
+        BufferedReader reader = null;
+        if (f.getName().endsWith(".gz")) {
+            reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(f))));
+        } else {
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+        }
+        return reader;
+    }
+
+
     public void read() throws IOException {
         /*
         AtomicLong counter = new AtomicLong(0);
@@ -78,11 +114,7 @@ public class TestRead {
         System.out.println("time: "+(t1-t));
     }
 
-    public static void main(String[] args) throws IOException {
-        //TestRead tr = new TestRead();
-        //tr.read();
-
-        long t = Calendar.getInstance().getTimeInMillis();
+    public void Mem(){
         File file = new File("DataSet/relations.txt");
         int BUFFER_SIZE = 1024;
         byte[] b = new byte[BUFFER_SIZE];
@@ -90,6 +122,7 @@ public class TestRead {
         MappedByteBuffer buff;
         try(FileChannel channel = new FileInputStream(file).getChannel()) {
             buff = channel.map(FileChannel.MapMode.READ_ONLY,0,channel.size());
+            String[] tokens;
             for(int offset = 0;offset < len;offset += BUFFER_SIZE){
                 if(len - offset > BUFFER_SIZE){
                     buff.get(b);
@@ -97,13 +130,25 @@ public class TestRead {
                     buff.get(new byte[len - offset]);
                 }
 
-                //final String line = StandardCharsets.UTF_8.decode(buff).toString();
+                final String line = StandardCharsets.UTF_8.decode(buff).toString();
+                tokens = line.split(" ");
+                System.out.println(tokens[0] + " " +tokens[2]);
                 //System.out.println(line);
             }
         } catch (IOException e){
             e.printStackTrace();
         }
+    }
 
+    public static void main(String[] args) throws IOException {
+        //TestRead tr = new TestRead();
+        //tr.read();
+        long t = Calendar.getInstance().getTimeInMillis();
+
+        //mem();
+        //new TestRead().stream();
+        //new TestRead().read();
+        new TestRead().Mem();
         long t1 = Calendar.getInstance().getTimeInMillis();
         System.out.println("time:  "+(t1-t)+"ms");
     }
@@ -114,8 +159,4 @@ public class TestRead {
         System.arraycopy(stringBuffer.array(), 0, newBuffer, 0, capacity);
         return (ByteBuffer) ByteBuffer.wrap(newBuffer).position(capacity);
     }
-}
-
-class Relations{
-
 }

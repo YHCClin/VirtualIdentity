@@ -7,6 +7,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="693f8dc9-a902-47d4-9a3c-75693a6a29d3" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/FileRead/testMemoryMappedFile.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/FileRead/TestRead.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileRead/TestRead.java" afterDir="false" />
     </list>
@@ -53,7 +54,7 @@
       <recent name="FileRead" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.TestRead">
+  <component name="RunManager" selected="Application.testMemoryMappedFile">
     <configuration name="SolutionDisjointSet" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Solutions.SolutionDisjointSet" />
       <module name="VisualIdentity" />
@@ -80,8 +81,22 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="testMemoryMappedFile" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="FileRead.testMemoryMappedFile" />
+      <module name="VisualIdentity" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="FileRead.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.testMemoryMappedFile" />
         <item itemvalue="Application.TestRead" />
         <item itemvalue="Application.SolutionDisjointSet" />
       </list>
@@ -102,6 +117,7 @@
       <workItem from="1603598130306" duration="4298000" />
       <workItem from="1603674983654" duration="6354000" />
       <workItem from="1603692898532" duration="8071000" />
+      <workItem from="1603674983654" duration="7825000" />
     </task>
     <servers />
   </component>
@@ -117,26 +133,26 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="745" y="281" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1603692929354" />
-    <state width="1340" height="266" key="GridCell.Tab.0.bottom" timestamp="1604050277997">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1877" height="98" key="GridCell.Tab.0.bottom" timestamp="1604146647703">
+      <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state width="1340" height="266" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1604050277997" />
-    <state width="1877" height="391" key="GridCell.Tab.0.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1603681726674" />
-    <state width="1340" height="266" key="GridCell.Tab.0.center" timestamp="1604050277997">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1877" height="98" key="GridCell.Tab.0.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1604146647703" />
+    <state width="1877" height="98" key="GridCell.Tab.0.center" timestamp="1604146647703">
+      <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state width="1340" height="266" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1604050277997" />
-    <state width="1877" height="391" key="GridCell.Tab.0.center/0.0.1920.1080@0.0.1920.1080" timestamp="1603681726674" />
-    <state width="1340" height="266" key="GridCell.Tab.0.left" timestamp="1604050277997">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1877" height="98" key="GridCell.Tab.0.center/0.0.1920.1080@0.0.1920.1080" timestamp="1604146647703" />
+    <state width="1877" height="98" key="GridCell.Tab.0.left" timestamp="1604146647702">
+      <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state width="1340" height="266" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1604050277997" />
-    <state width="1877" height="391" key="GridCell.Tab.0.left/0.0.1920.1080@0.0.1920.1080" timestamp="1603681726674" />
-    <state width="1340" height="266" key="GridCell.Tab.0.right" timestamp="1604050277997">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1877" height="98" key="GridCell.Tab.0.left/0.0.1920.1080@0.0.1920.1080" timestamp="1604146647702" />
+    <state width="1877" height="98" key="GridCell.Tab.0.right" timestamp="1604146647703">
+      <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state width="1340" height="266" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1604050277997" />
-    <state width="1877" height="391" key="GridCell.Tab.0.right/0.0.1920.1080@0.0.1920.1080" timestamp="1603681726674" />
+    <state width="1877" height="98" key="GridCell.Tab.0.right/0.0.1920.1080@0.0.1920.1080" timestamp="1604146647703" />
     <state x="391" y="107" key="SettingsEditor" timestamp="1603534746348">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
