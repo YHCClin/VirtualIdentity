@@ -1,17 +1,32 @@
 package FileRead;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
+import Solutions.*;
+
+class relPair{
+    public String A;
+    public String B;
+    public relPair(String a, String b){
+        A = a; B = b;
+    }
+}
 
 public class TestRead {
-    public static void main(String[] args) throws IOException {
+
+    private ArrayList<relPair> relPairs = new ArrayList<relPair>();
+    public void read() throws IOException {
         /*
         AtomicLong counter = new AtomicLong(0);
         String file = "DataSet/accounts.txt";
@@ -25,7 +40,8 @@ public class TestRead {
 
          */
         long t = Calendar.getInstance().getTimeInMillis();
-        RandomAccessFile randomAccessFile = new RandomAccessFile("DataSet/accounts.txt", "rw");
+
+        RandomAccessFile randomAccessFile = new RandomAccessFile("DataSet/relations.txt", "rw");
         FileChannel channel = randomAccessFile.getChannel();
         ByteBuffer buffer = ByteBuffer.allocate(1024 * 1024);
         int bytesRead = channel.read(buffer);
@@ -36,11 +52,12 @@ public class TestRead {
             buffer.flip();// 切换模式，写->读
             while (buffer.hasRemaining()) {
                 byte b = buffer.get();
-                if (b == 10 || b == 13) { // 换行或回车
+                if (b == 10) { // 换行或回车
                     stringBuffer.flip();
                     // 这里就是一个行
                     final String line = Charset.forName("utf-8").decode(stringBuffer).toString();
-                    //String[] tokens = line.split(" ");
+                    String[] tokens = line.split(" ");
+                    //boolean add = this.relPairs.add(new relPair(tokens[0], tokens[2]));
                     //System.out.println(line);// 解码已经读到的一行所对应的字节
                     stringBuffer.clear();
                 } else {
@@ -61,10 +78,44 @@ public class TestRead {
         System.out.println("time: "+(t1-t));
     }
 
+    public static void main(String[] args) throws IOException {
+        //TestRead tr = new TestRead();
+        //tr.read();
+
+        long t = Calendar.getInstance().getTimeInMillis();
+        File file = new File("DataSet/relations.txt");
+        int BUFFER_SIZE = 1024;
+        byte[] b = new byte[BUFFER_SIZE];
+        int len = (int)file.length();
+        MappedByteBuffer buff;
+        try(FileChannel channel = new FileInputStream(file).getChannel()) {
+            buff = channel.map(FileChannel.MapMode.READ_ONLY,0,channel.size());
+            for(int offset = 0;offset < len;offset += BUFFER_SIZE){
+                if(len - offset > BUFFER_SIZE){
+                    buff.get(b);
+                } else {
+                    buff.get(new byte[len - offset]);
+                }
+
+                //final String line = StandardCharsets.UTF_8.decode(buff).toString();
+                //System.out.println(line);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
+        long t1 = Calendar.getInstance().getTimeInMillis();
+        System.out.println("time:  "+(t1-t)+"ms");
+    }
+
     private static ByteBuffer reAllocate(ByteBuffer stringBuffer) {
         final int capacity = stringBuffer.capacity();
         byte[] newBuffer = new byte[capacity * 2];
         System.arraycopy(stringBuffer.array(), 0, newBuffer, 0, capacity);
         return (ByteBuffer) ByteBuffer.wrap(newBuffer).position(capacity);
     }
+}
+
+class Relations{
+
 }
