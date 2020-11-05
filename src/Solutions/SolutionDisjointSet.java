@@ -3,8 +3,6 @@ package Solutions;
 import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -29,20 +27,17 @@ public class SolutionDisjointSet {
         long t1 = Calendar.getInstance().getTimeInMillis();
         for(int i = 0;i < Max;++i) GraphSet[i] = i;
         //Arrays.fill(this.rank, 0);
-        System.out.println("Reading Relations File...");
+        System.out.println("Reading Files...");
         //getRelFromFile(rel);
-        Read(rel);
+        getIdAcPair(act);
+        ReadRelations(rel);
         long t2 = Calendar.getInstance().getTimeInMillis();
         System.out.println("Done! Resume Time: " + (t2-t1) + "ms");
-        //System.out.println("Generate GraphSet...");
+        System.out.println("Generate GraphSet...");
         generateGraphSet();
         long t3 = Calendar.getInstance().getTimeInMillis();
-        //System.out.println("Done! Resume Time: " + (t3-t2) + "ms");
-
-        System.out.println("Reading Account File...");
-        getIdAcPair(act);
         long t4 = Calendar.getInstance().getTimeInMillis();
-        System.out.println("Done! Resume Time: " + (t4-t3) + "ms");
+        System.out.println("Done! Resume Time: " + (t4-t2) + "ms");
 
         System.out.println("Excute Classifying...");
         Classify();
@@ -64,28 +59,12 @@ public class SolutionDisjointSet {
         System.out.println("AL: " + ((t7-t1) - t) + "ms");
         System.out.println("============== The Method of Disjoint Set Done. ============");
     }
-    public String[] readToString(String filePath){
-        File file = new File(filePath);
-        Long filelength = file.length();
-        byte[] filecontent = new byte[filelength.intValue()];
-        try{
-            FileInputStream in = new FileInputStream(file);
-            in.read(filecontent);
-            in.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String[] fileContentArr = new String(filecontent).split("\r\n");
-        return fileContentArr;
-    }
 
-    public void Read(String file) throws IOException {
+
+    public void ReadRelations(String file) throws IOException {
         RandomAccessFile memoryMappedFile = new RandomAccessFile(file,"r");
         int size =(int)memoryMappedFile.length();
         MappedByteBuffer out = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_ONLY,0,size);
-        long start = System.currentTimeMillis();
         //要根据文件行的平均字节大小来赋值
         final int extra = 55;
         int count = extra;
@@ -112,7 +91,7 @@ public class SolutionDisjointSet {
             }
             if(flag==true){
                 //这里的编码要看文件实际的编码
-                String line = new String(buf,"utf-8");
+                String line = new String(buf,"ascii");
                 tokens = line.split(" ");
                 relPairs.add(new relPair(Integer.parseInt(tokens[0]),Integer.parseInt(tokens[2])));
                 flag = false;
@@ -124,14 +103,57 @@ public class SolutionDisjointSet {
         }
         //处理最后一次读取
         if(j>0){
-            String line = new String(buf,"utf-8");
+            String line = new String(buf,"ascii");
             System.out.println(line);
         }
-
-        long end = System.currentTimeMillis();
-        System.out.println("耗时:"+(end-start));
         memoryMappedFile.close();
-
+    }
+    public void ReadAccounts(String file) throws IOException {
+        RandomAccessFile memoryMappedFile = new RandomAccessFile(file,"r");
+        int size =(int)memoryMappedFile.length();
+        MappedByteBuffer out = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_ONLY,0,size);
+        //要根据文件行的平均字节大小来赋值
+        final int extra = 30;
+        int count = extra;
+        byte[] buf = new byte[count];
+        int j=0;
+        char ch ='\0';
+        boolean flag = false;
+        while(out.remaining()>0){
+            byte by = out.get();
+            ch =(char)by;
+            switch(ch){
+                case '\n':
+                    flag = true;
+                    break;
+                default:
+                    buf[j] = by;
+                    break;
+            }
+            j++;
+            //读取的字符超过了buf 数组的大小，需要动态扩容
+            if(flag ==false && j>=count){
+                count = count + extra;
+                buf = copyOf(buf,count);
+            }
+            if(flag==true){
+                //这里的编码要看文件实际的编码
+                String line = new String(buf,"ascii");
+                tokens = line.split(" ");
+                Pairs.put(Integer.parseInt(tokens[0]),tokens[1]);
+                flag = false;
+                buf = null;
+                count = extra;
+                buf = new byte[count];
+                j =0;
+            }
+        }
+        //处理最后一次读取
+        if(j>0){
+            String line = new String(buf,"ascii");
+            System.out.println(line);
+        }
+        memoryMappedFile.close();
     }
     //扩充数组的容量
     public static byte[] copyOf(byte[] original,int newLength){
@@ -140,22 +162,33 @@ public class SolutionDisjointSet {
         return copy;
     }
 
-    public void getIdAcPair(String file) throws IOException {
+    public void getIdAcPair(String filepath) throws IOException {
 
-        BufferedReader br;
-        File f = new File(file);
-        br = new BufferedReader(new FileReader(f));
-        String s;
+        File file = new File(filepath);
+        BufferedReader reader = null;
         String[] tokens;
-        int id;
-        String cnt;
-        while((s = br.readLine()) != null){
-            tokens = s.split(" ");
-            id = Integer.parseInt(tokens[0]);
-            cnt = tokens[1];
-            Pairs.put(id,cnt);
+        try {
+            reader = new BufferedReader(new FileReader(file));
+            String tempString = null;
+            int line = 0;
+            // 一次读入一行，直到读入null为文件结束
+            while ((tempString = reader.readLine()) != null) {
+                // 显示行号
+                tokens = tempString.split(" ");
+                Pairs.put(line,tokens[1]);
+                line++;
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                }
+            }
         }
-        br.close();
     }
 
     public Integer getRoot(Integer x){
@@ -200,7 +233,7 @@ public class SolutionDisjointSet {
                 tokens = s.split(" ");
                 A = Integer.parseInt(tokens[0]);
                 B = Integer.parseInt(tokens[2]);
-                //relPairs.add(new relPair(A,B));
+                relPairs.add(new relPair(A,B));
                 Union_verts(A,B);
             }
             br.close();

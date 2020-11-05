@@ -139,6 +139,22 @@ public class TestRead {
             e.printStackTrace();
         }
     }
+    public String[] readToString(String filePath){
+        File file = new File(filePath);
+        Long filelength = file.length();
+        byte[] filecontent = new byte[filelength.intValue()];
+        try{
+            FileInputStream in = new FileInputStream(file);
+            in.read(filecontent);
+            in.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String[] fileContentArr = new String(filecontent).split("\r\n");
+        return fileContentArr;
+    }
 
     public static void main(String[] args) throws IOException {
         //TestRead tr = new TestRead();
@@ -148,7 +164,7 @@ public class TestRead {
         //mem();
         //new TestRead().stream();
         //new TestRead().read();
-        new TestRead().Mem();
+        String[] file = new TestRead().readToString("DataSet/relations.txt");
         long t1 = Calendar.getInstance().getTimeInMillis();
         System.out.println("time:  "+(t1-t)+"ms");
     }

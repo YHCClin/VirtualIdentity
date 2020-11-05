@@ -208,5 +208,4 @@ public class BigFileReader {
             return new BigFileReader(this.file,this.handle,this.charset,this.bufferSize,this.threadSize);
         }
     }
-
 }
