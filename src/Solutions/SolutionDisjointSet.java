@@ -1,6 +1,8 @@
 package Solutions;
 
 import java.io.*;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -12,13 +14,15 @@ import java.util.TreeMap;
 public class SolutionDisjointSet {
 
     private final Integer Max = 5000001;
+    private String[] tokens;
     // 用数组来存图
     private Integer[] GraphSet = new Integer[Max];
     //private Integer[] rank = new Integer[Max];
-    private TreeMap<Integer, ArrayList<Integer>> Classes = new TreeMap<Integer, ArrayList<Integer>>();
+    private TreeMap<Integer, String> Classes = new TreeMap<Integer, String>();
     private HashMap<Integer,String> Pairs = new HashMap<Integer, String>();
     private ArrayList<relPair> relPairs = new ArrayList<relPair>();
-
+    String[] relFile;
+    String[] idcFile;
 
     public void Execute(String rel,String act,String res) throws IOException {
         System.out.println("============== The Method of Disjoint Set ============");
@@ -26,11 +30,12 @@ public class SolutionDisjointSet {
         for(int i = 0;i < Max;++i) GraphSet[i] = i;
         //Arrays.fill(this.rank, 0);
         System.out.println("Reading Relations File...");
-        getRelFromFile(rel);
+        //getRelFromFile(rel);
+        Read(rel);
         long t2 = Calendar.getInstance().getTimeInMillis();
         System.out.println("Done! Resume Time: " + (t2-t1) + "ms");
         //System.out.println("Generate GraphSet...");
-        //generateGraphSet();
+        generateGraphSet();
         long t3 = Calendar.getInstance().getTimeInMillis();
         //System.out.println("Done! Resume Time: " + (t3-t2) + "ms");
 
@@ -59,17 +64,83 @@ public class SolutionDisjointSet {
         System.out.println("AL: " + ((t7-t1) - t) + "ms");
         System.out.println("============== The Method of Disjoint Set Done. ============");
     }
+    public String[] readToString(String filePath){
+        File file = new File(filePath);
+        Long filelength = file.length();
+        byte[] filecontent = new byte[filelength.intValue()];
+        try{
+            FileInputStream in = new FileInputStream(file);
+            in.read(filecontent);
+            in.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String[] fileContentArr = new String(filecontent).split("\r\n");
+        return fileContentArr;
+    }
+
+    public void Read(String file) throws IOException {
+        RandomAccessFile memoryMappedFile = new RandomAccessFile(file,"r");
+        int size =(int)memoryMappedFile.length();
+        MappedByteBuffer out = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_ONLY,0,size);
+        long start = System.currentTimeMillis();
+        //要根据文件行的平均字节大小来赋值
+        final int extra = 55;
+        int count = extra;
+        byte[] buf = new byte[count];
+        int j=0;
+        char ch ='\0';
+        boolean flag = false;
+        while(out.remaining()>0){
+            byte by = out.get();
+            ch =(char)by;
+            switch(ch){
+                case '\n':
+                    flag = true;
+                    break;
+                default:
+                    buf[j] = by;
+                    break;
+            }
+            j++;
+            //读取的字符超过了buf 数组的大小，需要动态扩容
+            if(flag ==false && j>=count){
+                count = count + extra;
+                buf = copyOf(buf,count);
+            }
+            if(flag==true){
+                //这里的编码要看文件实际的编码
+                String line = new String(buf,"utf-8");
+                tokens = line.split(" ");
+                relPairs.add(new relPair(Integer.parseInt(tokens[0]),Integer.parseInt(tokens[2])));
+                flag = false;
+                buf = null;
+                count = extra;
+                buf = new byte[count];
+                j =0;
+            }
+        }
+        //处理最后一次读取
+        if(j>0){
+            String line = new String(buf,"utf-8");
+            System.out.println(line);
+        }
+
+        long end = System.currentTimeMillis();
+        System.out.println("耗时:"+(end-start));
+        memoryMappedFile.close();
+
+    }
+    //扩充数组的容量
+    public static byte[] copyOf(byte[] original,int newLength){
+        byte[] copy = new byte[newLength];
+        System.arraycopy(original,0,copy,0,Math.min(original.length,newLength));
+        return copy;
+    }
 
     public void getIdAcPair(String file) throws IOException {
-        //long t = Calendar.getInstance().getTimeInMillis();
-        /*
-        Files.lines(Paths.get(file)).forEach(line -> {
-            String[] split = line.split(" ");
-            Integer id = Integer.parseInt(split[0]);
-            Pairs.put(id,split[1]);
-        });
-
-         */
 
         BufferedReader br;
         File f = new File(file);
@@ -85,10 +156,6 @@ public class SolutionDisjointSet {
             Pairs.put(id,cnt);
         }
         br.close();
-
-
-        //long t1 = Calendar.getInstance().getTimeInMillis();
-        //System.out.println("Time: "+(t1-t)+"ms");
     }
 
     public Integer getRoot(Integer x){
@@ -121,16 +188,6 @@ public class SolutionDisjointSet {
     }
 
     public void getRelFromFile(String file) {
-        //long t = Calendar.getInstance().getTimeInMillis();
-        /*
-        Files.lines(Paths.get(file)).forEach(line -> {
-            String[] split = line.split(" ");
-            Integer A = Integer.parseInt(split[0]);
-            Integer B = Integer.parseInt(split[2]);
-            //relPairs.add(new relPair(A,B));
-            Union_verts(A, B);
-        });
-         */
 
         BufferedReader br;
         try {
@@ -150,9 +207,6 @@ public class SolutionDisjointSet {
         } catch (IOException e){
             e.printStackTrace();
         }
-
-        //long t1 = Calendar.getInstance().getTimeInMillis();
-        //System.out.println("Time: "+(t1-t)+"ms");
     }
 
     public void generateGraphSet() {
@@ -170,46 +224,36 @@ public class SolutionDisjointSet {
     }
 
     public void Classify(){
-        //long t = Calendar.getInstance().getTimeInMillis();
         UnionToRoot();
         for(int cur = 0;cur < Max;++cur) {
             if (!Classes.containsKey(GraphSet[cur])) {
-                Classes.put(GraphSet[cur], new ArrayList<>());
+                Classes.put(GraphSet[cur], "");
             }
-            Classes.get(GraphSet[cur]).add(cur);
+            String s = Classes.get(GraphSet[cur]).concat(Pairs.get(cur) + ',');
+            Classes.put(GraphSet[cur],s);
         }
-        //long t1 = Calendar.getInstance().getTimeInMillis();
-        //System.out.println("Time: "+(t1-t)+"ms");
     }
 
     public void getResults(String file) throws IOException {
-        //long t = Calendar.getInstance().getTimeInMillis();
-        //FileOutputStream fos = new FileOutputStream(file,true);
-        //FileChannel channel = fos.getChannel();
-        //StringBuffer content = new StringBuffer();
         File f = new File(file);
-        FileWriter rs = new FileWriter(f);
-        BufferedWriter buff = new BufferedWriter(rs);
-        StringBuffer s = new StringBuffer();
-        for (HashMap.Entry<Integer, ArrayList<Integer>> entry : Classes.entrySet()) {
-            s.append(entry.getKey() + "");
-            for(int i = 0;i < entry.getValue().size();i++){
-                s.append((i==0 ? " " : ",") + Pairs.get(entry.getValue().get(i)));
-            }
-            s.append("\r\n");
-            
-            //buff.write(s + "\r\n");
+        FileOutputStream fos = new FileOutputStream(f);
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
+        String s = null;
+        String r = null;
+        for (HashMap.Entry<Integer, String> entry : Classes.entrySet()) {
+            s = entry.getKey() + " ";
+            r = entry.getValue();
+            s += r.substring(0,r.length()-1)+"\r\n";
+            writer.write(s);
         }
-        buff.write(String.valueOf(s));
-        buff.close();
-        //long t1 = Calendar.getInstance().getTimeInMillis();
-        //System.out.println("Time: "+(t1-t)+"ms");
+        writer.close();
+        fos.close();
     }
 
     public static void main(String[] args) throws IOException {
         String rel = "DataSet/relations.txt";
         String act = "DataSet/accounts.txt";
-        String res = "DataSet/results.txt";
+        String res = "DataSet/result.txt";
         SolutionDisjointSet g = new SolutionDisjointSet();
         g.Execute(rel,act,res);
     }
